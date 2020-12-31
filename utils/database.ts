@@ -1,7 +1,7 @@
-import { Db, MongoClient } from 'mongodb';
+import { MongoClient, Collection } from 'mongodb';
 
 interface ConnectWithDatabaseType {
-  db: Db;
+  db: Collection;
   client: MongoClient;
 }
 
@@ -13,6 +13,6 @@ const client = new MongoClient(process.env.DATABASE_URL, {
 export default async function connectWithDatabase(): Promise<ConnectWithDatabaseType> {
   if (!client.isConnected()) await client.connect();
 
-  const db = client.db('teach-other-database');
+  const db = client.db('teach-other-database').collection('users');
   return { db, client };
 }

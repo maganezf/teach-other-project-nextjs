@@ -12,9 +12,12 @@ interface SuccessResponseType {
   email: string;
   cellphone: string;
   teacher: true;
+  coins: number;
   courses: string[];
-  available_hours: object;
+  available_hours: Record<string, number[]>;
   available_locations: string[];
+  reviews: Record<string, unknown>[];
+  appointments: Record<string, unknown>[];
 }
 
 export default async (
@@ -22,7 +25,7 @@ export default async (
   response: NextApiResponse<ErrorResponseType | SuccessResponseType>
 ): Promise<void> => {
   if (request.method === 'GET') {
-    const { id } = request.body;
+    const { id }: { id: string } = request.body;
 
     if (!id) {
       response
@@ -31,14 +34,22 @@ export default async (
       return;
     }
 
+    let _id: ObjectID;
+    try {
+      _id = new ObjectID(id);
+    } catch {
+      response.status(400).json({ errorMessage: 'Wrong objectID' });
+      return;
+    }
+
     const { db } = await connectWithDatabase();
 
-    const res = await db.collection('users').findOne({ _id: new ObjectID(id) });
+    const res = await db.findOne({ _id });
 
     if (!res) {
       response
         .status(400)
-        .json({ errorMessage: 'Teacher with this ID was not found' });
+        .json({ errorMessage: `Teacher with this ID: '${_id}' was not found` });
       return;
     }
 

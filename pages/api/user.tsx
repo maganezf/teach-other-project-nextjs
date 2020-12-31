@@ -11,18 +11,19 @@ interface SuccessResponseType {
   email: string;
   cellphone: string;
   teacher: true;
-  coins: 1;
+  coins: number;
   courses: string[];
-  available_hours: object;
+  available_hours: Record<string, number[]>;
   available_locations: string[];
-  reviews: object[];
-  appointments: object[];
+  reviews: Record<string, unknown>[];
+  appointments: Record<string, unknown>[];
 }
 
 export default async (
   request: NextApiRequest,
   response: NextApiResponse<ErrorResponseType | SuccessResponseType>
 ): Promise<void> => {
+  // CREATE USER
   if (request.method === 'POST') {
     const {
       name,
@@ -32,6 +33,14 @@ export default async (
       courses,
       available_hours,
       available_locations,
+    }: {
+      name: string;
+      email: string;
+      cellphone: string;
+      teacher: boolean;
+      courses: string[];
+      available_locations: string[];
+      available_hours: Record<string, number[]>;
     } = request.body;
 
     if (!teacher) {
@@ -57,9 +66,18 @@ export default async (
 
     const { db } = await connectWithDatabase();
 
-    const res = await db.collection('users').insertOne({
+    const lowerCaseEmail = email.toLowerCase();
+    const emailAlreadyExists = await db.findOne({ email: lowerCaseEmail });
+    if (emailAlreadyExists) {
+      response.status(400).json({
+        errorMessage: `This email: '${lowerCaseEmail}' already exists`,
+      });
+      return;
+    }
+
+    const res = await db.insertOne({
       name,
-      email,
+      email: lowerCaseEmail,
       cellphone,
       teacher,
       coins: 1,
@@ -71,6 +89,8 @@ export default async (
     });
 
     response.status(200).json(res.ops[0]);
+
+    // SHOW USER PROFILE
   } else if (request.method === 'GET') {
     const { email } = request.body;
 
@@ -83,12 +103,12 @@ export default async (
 
     const { db } = await connectWithDatabase();
 
-    const res = await db.collection('users').findOne({ email });
+    const res = await db.findOne({ email });
 
     if (!res) {
-      response
-        .status(400)
-        .json({ errorMessage: 'User with this email was not found' });
+      response.status(400).json({
+        errorMessage: `User with this email: '${email}'  was not found`,
+      });
       return;
     }
 

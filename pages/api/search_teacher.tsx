@@ -7,10 +7,10 @@ interface ErrorResponseType {
 
 export default async (
   request: NextApiRequest,
-  response: NextApiResponse<ErrorResponseType | object[]>
+  response: NextApiResponse<ErrorResponseType | Record<string, unknown>[]>
 ): Promise<void> => {
   if (request.method === 'GET') {
-    const { courses } = request.body;
+    const { courses }: { courses: string } = request.body;
 
     if (!courses) {
       response
@@ -21,7 +21,9 @@ export default async (
 
     const { db } = await connectWithDatabase();
 
-    const res = await db.collection('users').find({ courses }).toArray();
+    const res = await db
+      .find({ courses: { $in: [new RegExp(`^${courses}`, 'i')] } })
+      .toArray();
 
     if (res.length === 0) {
       response
