@@ -2,13 +2,13 @@ import { NextPage } from 'next';
 import { signIn, signOut, useSession } from 'next-auth/client';
 import Nav from '../components/nav';
 
-const AppPage: NextPage = () => {
+const SearchPage: NextPage = () => {
   const [session, loading] = useSession();
 
   return (
     <div className="text-blue-500 no-underline text-accent-1 dark:text-blue-300 text-3xl">
       <Nav />
-      <h1 className="text-center text-5xl">App Page</h1>
+      <h1 className="text-center text-5xl">Welcome to Search Page</h1>
       {!session && (
         <>
           Not signed in <br />
@@ -35,4 +35,4 @@ const AppPage: NextPage = () => {
   );
 };
 
-export default AppPage;
+export default SearchPage;

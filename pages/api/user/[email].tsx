@@ -47,6 +47,7 @@ export default async (
     }
 
     response.status(200).json(res);
+  } else {
+    response.status(400).json({ errorMessage: 'Wrong request method' });
   }
-  response.status(400).json({ errorMessage: 'Wrong request method' });
 };
