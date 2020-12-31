@@ -89,31 +89,5 @@ export default async (
     });
 
     response.status(200).json(res.ops[0]);
-
-    // SHOW USER PROFILE
-  } else if (request.method === 'GET') {
-    const { email } = request.body;
-
-    if (!email) {
-      response
-        .status(400)
-        .json({ errorMessage: 'Missing email on request body' });
-      return;
-    }
-
-    const { db } = await connectWithDatabase();
-
-    const res = await db.findOne({ email });
-
-    if (!res) {
-      response.status(400).json({
-        errorMessage: `User with this email: '${email}'  was not found`,
-      });
-      return;
-    }
-
-    response.status(200).json(res);
-  } else {
-    response.status(400).json({ errorMessage: 'Wrong request method' });
   }
 };

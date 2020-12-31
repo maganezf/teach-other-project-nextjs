@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ObjectID } from 'mongodb';
-import connectWithDatabase from '../../utils/database';
+import connectWithDatabase from '../../../utils/database';
 
 interface ErrorResponseType {
   errorMessage: string;
@@ -25,7 +25,7 @@ export default async (
   response: NextApiResponse<ErrorResponseType | SuccessResponseType>
 ): Promise<void> => {
   if (request.method === 'GET') {
-    const { id }: { id: string } = request.body;
+    const id = request.query.id as string;
 
     if (!id) {
       response
